@@ -33,16 +33,16 @@ func main() {
 	wg.Add(TCount)
 	for i := 0; i < TCount; i++ { // 注意：如果协程内使用了 i，必须有这一步，或者选择通过参数传递进协程。
 		// 否则 i 会被 for 所在的协程修改，协程实际使用时值并不确定。
-		go func() { // 协程结束时报告当前协程执行完毕。
+		go func(i int) { // 协程结束时报告当前协程执行完毕。
 			defer func() { wg.Done() }()
 
 			// fmt.Printf("工作者 %v 启动...\r\n", i)
 			for task := range taskChan { // 建立匿名函数执行任务的目的是为了捕获单个任务崩溃，防止造成整个工作者、系统崩溃。
-				fmt.Println(task)
+				fmt.Println(task.X, task.Y, i)
 			}
 
 			// fmt.Printf("工作者 %v 结束。\r\n", i)
-		}()
+		}(i)
 	} //等待所有任务完成
 	wg.Wait()
 	fmt.Println("全部任务结束", time.Now().Sub(start))
